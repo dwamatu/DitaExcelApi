@@ -20,8 +20,10 @@ Route::get('/', function () {
 Route::group(['prefix' => 'api/v1'], function () {
 
     Route::get('{table}/{id?}', 'BaseController@issueGetRequest');
-    Route::post('types/{id?}', 'BaseController@saveFileType');
-    Route::post('files/{id?}', 'BaseController@saveFile');
+
+    //File and File Types
+    Route::post('types/{id?}', 'FileController@saveFileType');
+    Route::post('files/{id?}', 'FileController@saveFile');
 
 
 });
