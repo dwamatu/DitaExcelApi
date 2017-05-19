@@ -14,3 +14,14 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
+Route::group(['prefix' => 'api/v1'], function () {
+
+    Route::get('{table}/{id?}', 'BaseController@issueGetRequest');
+    Route::post('types/{id?}', 'BaseController@saveFileType');
+    Route::post('files/{id?}', 'BaseController@saveFile');
+
+
+});
