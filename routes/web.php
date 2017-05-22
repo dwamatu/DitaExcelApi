@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+Route::get('file/{type}', 'FileController@retrieveFile');
 
 Route::group(['prefix' => 'api/v1'], function () {
 
@@ -24,6 +24,9 @@ Route::group(['prefix' => 'api/v1'], function () {
     //File and File Types
     Route::post('types/{id?}', 'FileController@saveFileType');
     Route::post('files/{id?}', 'FileController@saveFile');
+
+
+
 
 
 });
