@@ -10,29 +10,30 @@
 namespace App\Utilities;
 
 
+use App\File;
 use Illuminate\Support\Facades\Storage;
 
 class FileUtilities
 {
-    public static function getFile($params, $photo, $image)
+    public static function getFile($file_id)
     {
-        $result = null;
-        if ($image != null) {
-            if ($photo === 'avatar') {
-                $path = storage_path() . "/app/$params/avatars/" . $image;
-                $result = file_exists($path) ? $path : null;
-            } elseif ($photo === 'thumbnail') {
-                $path = storage_path() . "/app/$params/avatars/thumbnails/" . $image;
-                $result = file_exists($path) ? $path : null;
-            }
-        }
 
+        $result = null;
+        //Get the most recent File with the same extension
+        $fileDetails = File::where('file_type', '=', $file_id)
+            ->orderBy('created_at', 'desc')->first();
+        $file = $fileDetails->file_name;
+
+        if ($file != null) {
+            $path = storage_path() . "/app/files/" . $file;
+            $result = file_exists($path) ? $path : null;
+        }
         return $result;
     }
 
-    public static function storeFile($resource,$filename)
+    public static function storeFile($resource, $filename)
     {
-        //Store Avatar
+        //Store File
         $path = Storage::putFileAs(
             "files/", $resource, $filename
         );
