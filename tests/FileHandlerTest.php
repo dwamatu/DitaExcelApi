@@ -13,7 +13,7 @@ class FileHandlerTest extends TestCase
      * @return void
      */
     use WithoutMiddleware;
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     public function testExample()
     {
@@ -31,6 +31,9 @@ class FileHandlerTest extends TestCase
             ["file" => $file ])
             ->assertResponseStatus(200)
             ->seeJsonStructure(['id']);
+
+        $this->visit('file/jpg')->assertResponseStatus(200)->seeJson(['results']);
+
 
     }
 }
