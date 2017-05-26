@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 
 class FileHandlerTest extends TestCase
@@ -13,7 +12,7 @@ class FileHandlerTest extends TestCase
      * @return void
      */
     use WithoutMiddleware;
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
     public function testExample()
     {
@@ -32,8 +31,8 @@ class FileHandlerTest extends TestCase
             ->assertResponseStatus(200)
             ->seeJsonStructure(['id']);
 
-        $this->visit('file/jpg')->assertResponseStatus(200)->seeJson(['results']);
-
+        $this->call('GET', 'file/jpg');
+        $this->assertTrue($this->response->headers->get('content-type') == 'image/jpeg');
 
     }
 }
