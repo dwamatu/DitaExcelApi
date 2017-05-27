@@ -46,7 +46,7 @@ class BaseController extends Controller
             return $this->response;
             //
         } else {
-            $this->response['errors'] = ['status_code' => 404, "error" => "resource $table does not exits"];
+            $this->response['errors'] = ['status_code' => 404, "error" => "resource $table does not exist"];
         }
         return $this->response;
 
