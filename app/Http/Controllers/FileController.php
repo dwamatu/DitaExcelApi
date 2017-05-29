@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\File;
 use App\Type;
 use App\Utilities\FileUtilities;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class FileController extends Controller
 {
@@ -30,6 +30,19 @@ class FileController extends Controller
 
     }
 
+    /**
+     * @param $data
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    private function downloadFile($data)
+    {
+        if ($data != null && !isset($data['status_code'])) {
+
+            $data = response()->download($data);
+        }
+        return $data;
+    }
+
     public function saveFileType(Request $request)
     {
         $newFileTypeData = $request->all();
@@ -37,43 +50,6 @@ class FileController extends Controller
         $type = $this->createType($newFileTypeData);
 
         return $type;
-    }
-
-    public function saveFile(Request $request)
-    {
-        //Validate requests
-        $this->validate($request, [
-            'file' => 'required',
-        ]);
-
-        $resource = $request->file('file');
-
-        $filetype = $request->file('file')->getClientOriginalExtension();
-
-        $originalfilename = $request->file('file')->getClientOriginalName();
-        //Append Unique Identifier File Name
-        $datenow = self::fileCreationDate();
-        //Remove Special Characters
-        $tmpfilename = str_replace(' ', '_', $originalfilename);
-        //Concatenate filename and date
-        $filename = $datenow . '_' . $tmpfilename;
-        //Store File
-        FileUtilities::storeFile($resource, $filename);
-
-        //Check File Type Exists and Create if Does'nt Create a File Type.
-        $paramType = Type::firstOrCreate(['name' => $filetype]);
-        //Store File Details
-        $file = $this->storeFileMetadata($filename, $paramType);
-
-        return $file;
-    }
-
-    private static function fileCreationDate()
-    {
-        $datenow = \Carbon\Carbon::now()->toDateTimeString();
-        $datenow = str_replace(':', '_', $datenow);
-        $datenow = str_replace('-', '_', $datenow);
-        return $datenow;
     }
 
     /**
@@ -91,6 +67,48 @@ class FileController extends Controller
         return $type;
     }
 
+    public function saveFile(Request $request)
+    {
+        //Validate requests
+        $this->validate($request, [
+            'file' => 'required',
+        ]);
+
+        $resource = $request->file('file');
+
+        $fileType = $request->file('file')->getClientOriginalExtension();
+        if ($fileType === 'xlsx') {
+            $result = Excel::load($request->file('file')->getRealPath())->store('xls', false, true);
+            $path = $result['full'];
+            $fileType = $result['ext'];
+            $resource = new \Symfony\Component\HttpFoundation\File\File($path);
+        }
+        $originalFilename = $request->file('file')->getClientOriginalName();
+        //Append Unique Identifier File Name
+        $now = self::fileCreationDate();
+        //Remove Special Characters
+        $tmpFilename = str_replace(' ', '_', $originalFilename);
+        //Concatenate filename and date
+        $filename = $now . '_' . $tmpFilename;
+        //Store File
+        FileUtilities::storeFile($resource, $filename);
+
+        //Check File Type Exists and Create if Does'nt Create a File Type.
+        $paramType = Type::firstOrCreate(['name' => $fileType]);
+        //Store File Details
+        $file = $this->storeFileMetadata($filename, $paramType);
+
+        return $file;
+    }
+
+    private static function fileCreationDate()
+    {
+        $now = \Carbon\Carbon::now()->toDateTimeString();
+        $now = str_replace(':', '_', $now);
+        $now = str_replace('-', '_', $now);
+        return $now;
+    }
+
     /**
      * @param $filename
      * @param $paramType
@@ -105,19 +123,6 @@ class FileController extends Controller
 
         $file->save();
         return $file;
-    }
-
-    /**
-     * @param $data
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     */
-    private function downloadFile($data)
-    {
-        if ($data != null && !isset($data['status_code'])) {
-
-            $data = response()->download($data);
-        }
-        return $data;
     }
 
 }
