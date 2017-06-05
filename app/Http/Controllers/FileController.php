@@ -75,6 +75,7 @@ class FileController extends Controller
         ]);
 
         $resource = $request->file('file');
+        $checksum = null;
 
         $fileType = $request->file('file')->getClientOriginalExtension();
         if ($fileType === 'xlsx') {
@@ -82,6 +83,7 @@ class FileController extends Controller
             $path = $result['full'];
             $fileType = $result['ext'];
             $resource = new \Symfony\Component\HttpFoundation\File\File($path);
+            $checksum = md5_file($resource->getRealPath());
         }
         $originalFilename = $request->file('file')->getClientOriginalName();
         //Append Unique Identifier File Name
@@ -96,7 +98,8 @@ class FileController extends Controller
         //Check File Type Exists and Create if Does'nt Create a File Type.
         $paramType = Type::firstOrCreate(['name' => $fileType]);
         //Store File Details
-        $file = $this->storeFileMetadata($filename, $paramType);
+        //$file = $this->storeFileMetadata($filename, $paramType);
+        $file = $this->storeFileMetadataWithChecksum($filename, $paramType, $checksum);
 
         return $file;
     }
@@ -107,6 +110,18 @@ class FileController extends Controller
         $now = str_replace(':', '_', $now);
         $now = str_replace('-', '_', $now);
         return $now;
+    }
+
+    private function storeFileMetadataWithChecksum($filename, $paramType, $checksum)
+    {
+        $file = new File();
+
+        $file->file_name = $filename;
+        $file->file_type = $paramType->id;
+        $file->checksum = $checksum;
+
+        $file->save();
+        return $file;
     }
 
     /**

@@ -42,7 +42,8 @@ class FileHandlerTest extends TestCase
         $this->json("POST", 'api/v1/files',
             ["file" => $file])
             ->assertResponseStatus(200)
-            ->seeJsonStructure(['id']);
+            ->seeJsonStructure(['id'])
+            ->seeJsonStructure(['checksum']);
         $this->call('GET', 'file/xls');
         $this->assertTrue($this->response->headers->get('content-type') == 'application/vnd.ms-office');
     }
