@@ -14,8 +14,9 @@ before_script:
 
 
 
-script: phpunit
+script:
+  - vendor/bin/phpunit
 
 notifications:
     on_success: never
-on_failure: always
+    on_failure: always
