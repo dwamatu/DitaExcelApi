@@ -34,7 +34,8 @@ class FileController extends Controller
 
     public function retrieveFileDetails($id)
     {
-        $fileDetails = File::with(['type' => function ($query) {
+        $fileDetails = File::findOrFail($id);
+        $fileDetails->load(['type' => function ($query) {
             $query->select('name', 'file_id');
         }])->first();
         $data = $fileDetails->toJson();
@@ -74,14 +75,15 @@ class FileController extends Controller
         $checksum = hash_file('md5', $resource->getRealPath());;
 
         $fileType = $request->file('file')->getClientOriginalExtension();
+        $originalFilename = $request->file('file')->getClientOriginalName();
         if ($fileType === 'xlsx') {
             $result = Excel::load($request->file('file')->getRealPath())->store('xls', false, true);
             $path = $result['full'];
             $fileType = $result['ext'];
             $resource = new \Symfony\Component\HttpFoundation\File\File($path);
+            $originalFilename = $resource->getFilename();
             $checksum = hash_file('md5', $resource->getRealPath());
         }
-        $originalFilename = $request->file('file')->getClientOriginalName();
         //Append Unique Identifier File Name
         $now = self::fileCreationDate();
         //Remove Special Characters

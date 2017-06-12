@@ -14,7 +14,7 @@ class FileHandlerTest extends TestCase
     use WithoutMiddleware;
     use DatabaseTransactions;
 
-    public function testExample()
+    public function testApi()
     {
         $faker = \Faker\Factory::create();
 
@@ -29,14 +29,14 @@ class FileHandlerTest extends TestCase
         $this->json("POST",'api/v1/files',
             ["file" => $file ])
             ->assertResponseStatus(200)
-            ->seeJsonStructure(['id']);
+            ->seeJsonStructure(['id'])
+            ->seeJson(['name' => 'jpg']);
         $data = json_decode($this->response->content());
         $this->json('GET', 'file/details/' . $data->id)
-            ->seeJsonStructure(['checksum']);
+            ->seeJsonStructure(['checksum'])
+            ->seeJson(['name' => 'jpg']);
         $this->call('GET', 'file/' . $data->type->name);
         $this->assertTrue($this->response->headers->get('content-type') == 'image/jpeg');
-
-
     }
 
     public function testExcelConversion()
@@ -46,7 +46,12 @@ class FileHandlerTest extends TestCase
             ["file" => $file])
             ->assertResponseStatus(200)
             ->seeJsonStructure(['id'])
-            ->seeJsonStructure(['checksum']);
+            ->seeJsonStructure(['checksum'])
+            ->seeJson(['name' => 'xls']);
+        $data = json_decode($this->response->content());
+        $this->json('GET', 'file/details/' . $data->id)
+            ->seeJsonStructure(['checksum'])
+            ->seeJson(['name' => 'xls']);
         $this->call('GET', 'file/xls');
         $this->assertTrue($this->response->headers->get('content-type') == 'application/vnd.ms-office');
     }
