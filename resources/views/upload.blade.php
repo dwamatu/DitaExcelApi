@@ -17,6 +17,9 @@
 <div id="app">
     <upload></upload>
 </div>
+<script>
+    const URL = "{{ $url }}";
+</script>
 <script src="/js/app.js"></script>
 </body>
 </html>

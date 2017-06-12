@@ -16,7 +16,8 @@ Route::get('/', function () {
 });
 
 Route::get('/upload', function () {
-    return view('upload');
+    $url = getenv('BASE_URL');
+    return view('upload', ['url' => URL::to('/')]);
 });
 
 Route::get('file/{type}', 'FileController@retrieveFile');
