@@ -14,7 +14,7 @@ class FileController extends Controller
     public function retrieveFile($type)
     {
 
-        $fileDetails = Type::where('name', $type)->firstOrFail();
+        $fileDetails = Type::latest()->where('name', $type)->firstOrFail();
         $data = FileUtilities::getFile($fileDetails->id);
         return $this->downloadFile($data);
     }
@@ -32,14 +32,14 @@ class FileController extends Controller
         return $data;
     }
 
-    public function retrieveFileDetails($id)
+    public function retrieveFileDetails($type)
     {
-        $fileDetails = File::findOrFail($id);
-        $fileDetails->load(['type' => function ($query) {
+        $fileDetails = Type::latest()->where('name', $type)->firstOrFail();
+        $data = FileUtilities::getDetails($fileDetails->id);
+        $data->load(['type' => function ($query) {
             $query->select('name', 'file_id');
-        }])->first();
-        $data = $fileDetails->toJson();
-        return $data;
+        }]);
+        return $data->toJson();
     }
 
     public function saveFileType(Request $request)

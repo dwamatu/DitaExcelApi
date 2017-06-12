@@ -33,6 +33,13 @@ class FileUtilities
         return $result;
     }
 
+    public static function getDetails($file_id)
+    {
+        return File::whereHas('type', function ($query) use ($file_id) {
+            $query->where('id', '=', $file_id);
+        })->orderBy('created_at', 'desc')->first();
+    }
+
     public static function storeFile($resource, $filename)
     {
         //Store File

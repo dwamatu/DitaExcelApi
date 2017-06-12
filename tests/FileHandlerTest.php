@@ -32,7 +32,7 @@ class FileHandlerTest extends TestCase
             ->seeJsonStructure(['id'])
             ->seeJson(['name' => 'jpg']);
         $data = json_decode($this->response->content());
-        $this->json('GET', 'file/details/' . $data->id)
+        $this->json('GET', 'file/details/' . $data->type->name)
             ->seeJsonStructure(['checksum'])
             ->seeJson(['name' => 'jpg']);
         $this->call('GET', 'file/' . $data->type->name);
@@ -49,7 +49,7 @@ class FileHandlerTest extends TestCase
             ->seeJsonStructure(['checksum'])
             ->seeJson(['name' => 'xls']);
         $data = json_decode($this->response->content());
-        $this->json('GET', 'file/details/' . $data->id)
+        $this->json('GET', 'file/details/' . $data->type->name)
             ->seeJsonStructure(['checksum'])
             ->seeJson(['name' => 'xls']);
         $this->call('GET', 'file/xls');
