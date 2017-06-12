@@ -20,8 +20,10 @@ class FileUtilities
 
         $result = null;
         //Get the most recent File with the same extension
-        $fileDetails = File::where('file_type', '=', $file_id)
-            ->orderBy('created_at', 'desc')->first();
+        $fileDetails = File::whereHas('type', function ($query) use ($file_id) {
+            $query->where('id', '=', $file_id);
+        })->orderBy('created_at', 'desc')->first();
+
         $file = $fileDetails->file_name;
 
         if ($file != null) {

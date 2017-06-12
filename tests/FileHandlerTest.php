@@ -30,9 +30,12 @@ class FileHandlerTest extends TestCase
             ["file" => $file ])
             ->assertResponseStatus(200)
             ->seeJsonStructure(['id']);
-
-        $this->call('GET', 'file/jpg');
+        $data = json_decode($this->response->content());
+        $this->json('GET', 'file/details/' . $data->id)
+            ->seeJsonStructure(['checksum']);
+        $this->call('GET', 'file/' . $data->type->name);
         $this->assertTrue($this->response->headers->get('content-type') == 'image/jpeg');
+
 
     }
 

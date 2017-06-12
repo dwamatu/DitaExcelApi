@@ -15,8 +15,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('file/{type}', 'FileController@retrieveFile');
+Route::get('/upload', function () {
+    return view('upload');
+});
 
+Route::get('file/{type}', 'FileController@retrieveFile');
+Route::get('file/details/{id}', 'FileController@retrieveFileDetails');
 Route::group(['prefix' => 'api/v1'], function () {
 
     Route::get('{table}/{id?}', 'BaseController@issueGetRequest');
@@ -24,9 +28,5 @@ Route::group(['prefix' => 'api/v1'], function () {
     //File and File Types
     Route::post('types/{id?}', 'FileController@saveFileType');
     Route::post('files/{id?}', 'FileController@saveFile');
-
-
-
-
 
 });

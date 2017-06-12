@@ -14,20 +14,9 @@ class FileController extends Controller
     public function retrieveFile($type)
     {
 
-        $fileDetails = Type::where('name', $type)->first();
-
-
-        if (count($fileDetails) < 1) {
-
-            $data = ["status_code" => 404, 'error' => "$type not found"];
-        } else {
-            $data = FileUtilities::getFile($fileDetails->id);
-        }
-
-        $data = $this->downloadFile($data);
-
-        return $data;
-
+        $fileDetails = Type::where('name', $type)->firstOrFail();
+        $data = FileUtilities::getFile($fileDetails->id);
+        return $this->downloadFile($data);
     }
 
     /**
@@ -40,6 +29,15 @@ class FileController extends Controller
 
             $data = response()->download($data);
         }
+        return $data;
+    }
+
+    public function retrieveFileDetails($id)
+    {
+        $fileDetails = File::with(['type' => function ($query) {
+            $query->select('name', 'file_id');
+        }])->first();
+        $data = $fileDetails->toJson();
         return $data;
     }
 
@@ -59,9 +57,7 @@ class FileController extends Controller
     private function createType($newFileTypeData)
     {
         $type = new Type();
-
         $type->name = $newFileTypeData['name'];
-
         $type->save();
 
         return $type;
@@ -75,7 +71,7 @@ class FileController extends Controller
         ]);
 
         $resource = $request->file('file');
-        $checksum = null;
+        $checksum = hash_file('md5', $resource->getRealPath());;
 
         $fileType = $request->file('file')->getClientOriginalExtension();
         if ($fileType === 'xlsx') {
@@ -83,7 +79,7 @@ class FileController extends Controller
             $path = $result['full'];
             $fileType = $result['ext'];
             $resource = new \Symfony\Component\HttpFoundation\File\File($path);
-            $checksum = md5_file($resource->getRealPath());
+            $checksum = hash_file('md5', $resource->getRealPath());
         }
         $originalFilename = $request->file('file')->getClientOriginalName();
         //Append Unique Identifier File Name
@@ -96,10 +92,10 @@ class FileController extends Controller
         FileUtilities::storeFile($resource, $filename);
 
         //Check File Type Exists and Create if Does'nt Create a File Type.
-        $paramType = Type::firstOrCreate(['name' => $fileType]);
+        //$paramType = Type::firstOrCreate(['name' => $fileType]);
         //Store File Details
         //$file = $this->storeFileMetadata($filename, $paramType);
-        $file = $this->storeFileMetadataWithChecksum($filename, $paramType, $checksum);
+        $file = $this->storeFileMetadataWithChecksum($filename, $fileType, $checksum);
 
         return $file;
     }
@@ -112,15 +108,16 @@ class FileController extends Controller
         return $now;
     }
 
-    private function storeFileMetadataWithChecksum($filename, $paramType, $checksum)
+    private function storeFileMetadataWithChecksum($filename, $fileType, $checksum)
     {
         $file = new File();
-
         $file->file_name = $filename;
-        $file->file_type = $paramType->id;
         $file->checksum = $checksum;
-
         $file->save();
+        $file->type()->create(['name' => $fileType]);
+        $file->load(['type' => function ($query) {
+            $query->select('name', 'file_id');
+        }]);
         return $file;
     }
 
