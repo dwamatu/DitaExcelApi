@@ -1,7 +1,7 @@
 import * as axios from "axios";
 
 function upload(formData) {
-    const url = `${URL}/api/v1/files`;
+    const url = '/api/v1/files';
     return axios.post(url, formData)
         .then(x => x.data)
         .then(x => {
