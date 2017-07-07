@@ -6,6 +6,7 @@ use App\File;
 use App\Type;
 use App\Utilities\FileUtilities;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class FileController extends Controller
@@ -68,8 +69,15 @@ class FileController extends Controller
     {
         //Validate requests
         $this->validate($request, [
-            'file' => 'required',
+            'file' => 'required|max:8000',
         ]);
+
+        $ext = $request->file('file')->getClientOriginalExtension();
+
+        if ($ext != 'xls' && $ext != 'xlsx') {
+            Log::info($ext);
+            return response()->json('Bad request (Invalid file)', 400);
+        }
 
         $resource = $request->file('file');
         $checksum = hash_file('md5', $resource->getRealPath());;
