@@ -16,7 +16,7 @@ class FileController extends Controller
     {
 
         $fileDetails = Type::latest()->where('name', $type)->firstOrFail();
-        $data = FileUtilities::getFile($fileDetails->id);
+        $data = FileUtilities::getFileCloud($fileDetails->id);
         return $this->downloadFile($data);
     }
 
@@ -28,7 +28,7 @@ class FileController extends Controller
     {
         if ($data != null && !isset($data['status_code'])) {
 
-            $data = response()->download($data);
+            $data = response()->download($data)->deleteFileAfterSend(true);;
         }
         return $data;
     }
@@ -99,7 +99,7 @@ class FileController extends Controller
         //Concatenate filename and date
         $filename = $now . '_' . $tmpFilename;
         //Store File
-        FileUtilities::storeFile($resource, $filename);
+        FileUtilities::storeFileCloud($filename, \Illuminate\Support\Facades\File::get($resource->getRealPath()));
 
         //Check File Type Exists and Create if Does'nt Create a File Type.
         //$paramType = Type::firstOrCreate(['name' => $fileType]);

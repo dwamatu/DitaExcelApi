@@ -168,6 +168,7 @@ return [
          */
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        App\Providers\GoogleDriveServiceProvider::class,
 
         /*
          * Application Service Providers...
