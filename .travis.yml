@@ -8,6 +8,7 @@ before_script:
   - cp .env.travis .env
   - composer self-update
   - composer install --no-interaction
+  - composer dump-autoload
   - mysql -e 'create database excel_api_testing;'
   - php artisan key:generate
   - php artisan migrate
