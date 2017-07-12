@@ -66,6 +66,11 @@ class FileUtilities
         $listContents = Storage::disk('google')->listContents();
         $details = FileUtilities::getFileCloudDetails($listContents, $filename);
         $data = Storage::disk('google')->get($details['path']);
+        $dir = storage_path() . '/app/files/';
+        if (!file_exists($dir)) {
+            \Illuminate\Support\Facades\File::makeDirectory($dir, 0775, true);
+        }
+
         $path = storage_path() . '/app/files/' . 'temp_' . $filename;
         \Illuminate\Support\Facades\File::put($path, $data);
         return $path;
