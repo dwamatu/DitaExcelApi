@@ -17,6 +17,9 @@ before_script:
 script:
   - vendor/bin/phpunit
 
+after_failure:
+  cat storage/logs/laravel.log
+
 notifications:
     on_success: never
     on_failure: always
