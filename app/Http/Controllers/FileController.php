@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\File;
 use App\Type;
+use App\Utilities\ExcelParser;
 use App\Utilities\FileUtilities;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class FileController extends Controller
@@ -16,7 +16,12 @@ class FileController extends Controller
     {
 
         $fileDetails = Type::latest()->where('name', $type)->firstOrFail();
-        $data = FileUtilities::getFileCloud($fileDetails->id);
+        if (env('APP_ENV', 'local') == 'production') {
+            $data = FileUtilities::getFileCloud($fileDetails->id);
+        } else {
+            $data = FileUtilities::getFile($fileDetails->id);
+        }
+
         return $this->downloadFile($data);
     }
 
@@ -75,7 +80,6 @@ class FileController extends Controller
         $ext = $request->file('file')->getClientOriginalExtension();
 
         if ($ext != 'xls' && $ext != 'xlsx') {
-            Log::info($ext);
             return response()->json('Bad request (Invalid file)', 400);
         }
 
@@ -99,7 +103,12 @@ class FileController extends Controller
         //Concatenate filename and date
         $filename = $now . '_' . $tmpFilename;
         //Store File
-        FileUtilities::storeFileCloud($filename, \Illuminate\Support\Facades\File::get($resource->getRealPath()));
+        if (env('APP_ENV', 'local') == 'production') {
+            FileUtilities::storeFileCloud($filename, \Illuminate\Support\Facades\File::get($resource->getRealPath()));
+        } else {
+            FileUtilities::storeFile($resource, $filename);
+        }
+
 
         //Check File Type Exists and Create if Does'nt Create a File Type.
         //$paramType = Type::firstOrCreate(['name' => $fileType]);
@@ -129,6 +138,24 @@ class FileController extends Controller
             $query->select('name', 'file_id');
         }]);
         return $file;
+    }
+
+    public function saveFileToDB(Request $request)
+    {
+        $this->validate($request, [
+            'file' => 'required|max:8000',
+        ]);
+
+        $ext = $request->file('file')->getClientOriginalExtension();
+
+        if ($ext != 'xls' && $ext != 'xlsx') {
+            return response()->json('Bad request (Invalid file)', 400);
+        }
+
+        $resource = $request->file('file');
+
+        ExcelParser::copyToDatabase($resource->getRealPath());
+        return response()->json('Saved successfully');
     }
 
     /**
