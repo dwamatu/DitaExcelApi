@@ -130,13 +130,26 @@ class ExcelParser
             return 'day';
         }
     }
-    public static function sanitize($string){
-        if(strpos($string,'/')!=false){
-           $prefix=substr($string,0,6);
 
+    public static function sanitize($string)
+    {
+        // remove any whitespaces
+        $string = preg_replace('/\s/', '', $string);
+        if (strpos($string, '/') != false) {
+            $course_codes = array();
+            if (preg_match('/[a-z]{3}[\d]{3}[a-z]{1}\/[a-z]{1}(?:[\/]*|.{})/i', $string) == 1) { // handle type YYY111A/B
+                $prefix = substr($string, 0, 6);
+                $sections = explode('/', substr($string, 6));
+                foreach ($sections as $section) {
+                    array_push($course_codes, $prefix . $section);
+                }
+            } else if (preg_match('/[a-z]{3}[\d]{3}[a-z]{1}(?:\/|.{0})/i', $string) == 1) { // handle type YYY111A/YYY222A
+                $course_codes = explode('/', $string);
+            }
 
-           $course_code=array();
-        }else{
+            return $course_codes;
+
+        } else {
             return array($string);
         }
 

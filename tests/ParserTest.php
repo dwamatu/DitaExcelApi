@@ -117,6 +117,15 @@ class ParserTest extends TestCase
         $this->assertEquals($details['room'], 'LR14');
     }
 
+    public function testSanitize()
+    {
+        $result = \App\Utilities\ExcelParser::sanitize('ACS101A');
+        $this->assertCount(1, $result);
+        $result = \App\Utilities\ExcelParser::sanitize('ACS101A/B');
+        $this->assertCount(2, $result);
+        $result = \App\Utilities\ExcelParser::sanitize('ACS101A/ACS113A');
+        $this->assertCount(2, $result);
+    }
     /*public function testSaveToDB()
     {
         $file = new UploadedFile(storage_path('testing/excel-new.xlsx'), 'excel-new.xlsx', null, filesize(storage_path('testing/excel-new.xlsx')), null, true);
