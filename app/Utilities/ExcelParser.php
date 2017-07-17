@@ -136,10 +136,9 @@ class ExcelParser
 
 
            $course_code=array();
-
+        }else{
+            return array($string);
         }
-
-
 
 
     }
