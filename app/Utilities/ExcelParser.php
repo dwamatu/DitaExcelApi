@@ -104,4 +104,19 @@ class ExcelParser
         $dateTime = Carbon::parse(date_format($string, 'd/m/y g:ia'));
         return $dateTime;
     }
+    public static function sanitize($string){
+        if(strpos($string,'/')!=false){
+           $prefix=substr($string,0,6);
+
+
+           $course_code=array();
+
+        }
+
+
+
+
+    }
+
+
 }
