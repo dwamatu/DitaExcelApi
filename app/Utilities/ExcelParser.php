@@ -14,7 +14,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Readers\LaravelExcelReader;
 
 // TODO: add support for all timetable variations
-// TODO: finidh copyToDatabase and finish tests
 
 class ExcelParser
 {
@@ -37,8 +36,6 @@ class ExcelParser
                         //echo ExcelParser::$i . ' ' . ExcelParser::$j;
                         if (preg_match($pattern, $cell, $matches) == 1) {
                             $details = self::getDetails($sheet);
-                            $details = self::stringToDate($details);
-                            $details->subHours(2); // all exams have a duration of two hours
                         }
                         ExcelParser::$j++;
                     });
@@ -61,6 +58,23 @@ class ExcelParser
     }
 
     public static function getDetails(&$sheet)
+    {
+        $dateTimeDetails = self::getDateTimeDetails($sheet);
+        $dateTimeDetails = self::stringToDate($dateTimeDetails);
+        $dateTimeDetails->subHours(2); // all exams have a duration of two hours
+        $shift = self::getShift($sheet->getTitle());
+        $room = $sheet->get(ExcelParser::$i)->get(0);
+        $details = [
+            'dateTime' => $dateTimeDetails,
+            'shift' => $shift,
+            'room' => $room
+        ];
+
+        return $details;
+
+    }
+
+    public static function getDateTimeDetails(&$sheet)
     {
         $row = ExcelParser::$i;
         $col = ExcelParser::$j;
@@ -101,7 +115,19 @@ class ExcelParser
 
     public static function stringToDate($string)
     {
-        $dateTime = Carbon::parse(date_format($string, 'd/m/y g:ia'));
-        return $dateTime;
+        $dateTime = \DateTime::createFromFormat('d/m/y g:ia', $string);
+        return Carbon::createFromTimestamp($dateTime->getTimestamp());
+    }
+
+    public static function getShift($string)
+    {
+        $string = strtolower($string);
+        if (strpos($string, 'athi') !== false) {
+            return 'athi';
+        } elseif (strpos($string, 'evening') !== false) {
+            return 'evening';
+        } else {
+            return 'day';
+        }
     }
 }
