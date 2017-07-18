@@ -9,7 +9,7 @@ class FunctionsUtilities
 {
 
 
-    public static function fetchList($table, $pageSize = null, $offset = null, $all = null, $q = null, $where = null, $equals = null,$andWhere=null)
+    public static function fetchList($table, $pageSize = null, $offset = null, $all = false, $q = null, $where = false, $filters = null, $andWhere = null)
     {
 
         $responseCollection = collect([]);
@@ -17,17 +17,21 @@ class FunctionsUtilities
         $iTotal = DB::table($table)->count();
         if (isset($all)) {
             $results = DB::table($table)->get();
-        } else if (isset($where) && !empty($equals)) {
+        } else if ($where && !empty($filters)) {
             //Collection to hold everything
-            $responseDataCollection = collect();
-            $queryCollection = collect(explode(',', $equals));
-            $collection = $queryCollection->each(function ($item, $key) use ($responseDataCollection, $table,$where) {
-                $units = DB::table($table)->where($where, $item)->get();
-                if (!empty($units)) {
-                    $responseDataCollection->push($units);
+            $queryCollection = collect($filters);
+            $query = DB::table($table);
+            foreach ($queryCollection->keys() as $key) {
+                $item = $queryCollection->get($key);
+                if (is_array($item)) {
+                    foreach ($item as $subitem) {
+                        $query->orWhere($key, $subitem);
+                    }
+                } else {
+                    $query->where($key, $item);
                 }
-            });
-            $results = $responseDataCollection;
+            }
+            $results = collect($query->get());
         } else if (isset($pageSize) && !empty($offset)) {
 
             $results = DB::table($table)->skip($offset)->take($pageSize)->get();

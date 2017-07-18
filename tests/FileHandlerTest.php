@@ -20,10 +20,10 @@ class FileHandlerTest extends TestCase
 
         $file = new UploadedFile(storage_path('testing/image.jpg'), 'image.jpg', null, filesize(storage_path('testing/image.jpg')), null, true);
 
-        $this->visit('api/v1/types')->assertResponseStatus(200);
+        $this->visit('api/v1/types?all=true')->assertResponseStatus(200);
         $this->json("POST",'api/v1/types',['name'=>$faker->text(5)])->assertResponseStatus(200)->seeJsonStructure(['id']);
 
-        $this->visit('api/v1/files')->assertResponseStatus(200)->seeJsonStructure(['results']);
+        $this->visit('api/v1/files?all=true')->assertResponseStatus(200)->seeJsonStructure(['results']);
 
 
         $this->json("POST",'api/v1/files',
