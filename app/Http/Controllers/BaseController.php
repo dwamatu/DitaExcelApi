@@ -81,27 +81,6 @@ class BaseController extends Controller
 
     //</editor-fold>
 
-    public function fetchUnits(Request $request, $shift)
-    {
-        $table = "units";
-        $pageSize = $request->query('pageSize');
-        $offSet = $request->query('offSet');
-        $all = $request->query('all');
-        $q = $request->query('q');
-        $where = $request->query('where');
-        $equals = $request->query('equals');
 
-        $dataResponse = FunctionsUtilities::fetchList($table, $pageSize, $offSet, $all, $q, $where, $equals);
-
-
-
-        \Log::info('fetchUnits::dataResponse',[$dataResponse]);
-
-        //Retrieve by shift
-        $this->response = $dataResponse;
-
-
-        return $this->response;
-    }
 
 }
