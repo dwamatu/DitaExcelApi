@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 
 use App\File;
+use App\Units;
 use App\Utilities\FileUtilities;
+use function GuzzleHttp\Promise\unwrap;
 use Schema;
 use App\Type;
 use App\Utilities\FunctionsUtilities;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use DB;
 
 use Mockery\Exception;
 
@@ -28,6 +31,11 @@ class BaseController extends Controller
         $offSet = $request->query('offSet');
         $all = $request->query('all');
         $q = $request->query('q');
+        $where = $request->query('where');
+        $equals = $request->query('equals');
+
+        \Log::info('Where', [$where,$equals]);
+
 
 
         if (Schema::hasTable($table)) {
@@ -40,7 +48,7 @@ class BaseController extends Controller
                     $this->response['resource'] = $data;
                 }
             } else {
-                $this->response = FunctionsUtilities::fetchList($table, $pageSize, $offSet, $all, $q);
+                $this->response = FunctionsUtilities::fetchList($table, $pageSize, $offSet, $all, $q, $where, $equals);
 
             }
             return $this->response;
@@ -73,6 +81,27 @@ class BaseController extends Controller
 
     //</editor-fold>
 
+    public function fetchUnits(Request $request, $shift)
+    {
+        $table = "units";
+        $pageSize = $request->query('pageSize');
+        $offSet = $request->query('offSet');
+        $all = $request->query('all');
+        $q = $request->query('q');
+        $where = $request->query('where');
+        $equals = $request->query('equals');
 
+        $dataResponse = FunctionsUtilities::fetchList($table, $pageSize, $offSet, $all, $q, $where, $equals);
+
+
+
+        \Log::info('fetchUnits::dataResponse',[$dataResponse]);
+
+        //Retrieve by shift
+        $this->response = $dataResponse;
+
+
+        return $this->response;
+    }
 
 }

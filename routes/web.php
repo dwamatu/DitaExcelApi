@@ -31,3 +31,6 @@ Route::group(['prefix' => 'api/v1'], function () {
     Route::post('files/{id?}', 'FileController@saveFile');
 
 });
+
+
+Route::get('fetch/units/{shift?}',"BaseController@fetchUnits");
