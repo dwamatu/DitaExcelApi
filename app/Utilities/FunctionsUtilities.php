@@ -27,9 +27,9 @@ class FunctionsUtilities
                     $i = 0;
                     foreach ($item as $subitem) {
                         if ($i == 0) {
-                            $query->where($key, $subitem);
+                            $query->where($key, 'like', $subitem);
                         } else {
-                            $query->orWhere($key, $subitem);
+                            $query->orWhere($key, 'like', $subitem);
                         }
                         $i++;
                     }
