@@ -24,13 +24,20 @@ class FunctionsUtilities
             foreach ($queryCollection->keys() as $key) {
                 $item = $queryCollection->get($key);
                 if (is_array($item)) {
+                    $i = 0;
                     foreach ($item as $subitem) {
-                        $query->orWhere($key, $subitem);
+                        if ($i == 0) {
+                            $query->where($key, $subitem);
+                        } else {
+                            $query->orWhere($key, $subitem);
+                        }
+                        $i++;
                     }
                 } else {
                     $query->where($key, $item);
                 }
             }
+            //$query->toSql() . "\n";
             $results = collect($query->get());
         } else if (isset($pageSize) && !empty($offset)) {
 
