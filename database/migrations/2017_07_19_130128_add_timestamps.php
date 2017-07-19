@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateFiletypesTable extends Migration
+class AddTimestamps extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,7 @@ class CreateFiletypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('filetypes', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
+        Schema::table('units', function (Blueprint $table) {
             $table->timestamps();
         });
     }
@@ -27,6 +25,8 @@ class CreateFiletypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('filetypes');
+        Schema::table('units', function (Blueprint $table) {
+            $table->dropColumn(['created_at', 'updated_at']);
+        });
     }
 }

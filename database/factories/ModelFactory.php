@@ -22,3 +22,20 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'remember_token' => str_random(10),
     ];
 });
+
+
+$factory->define(App\Unit::class, function (Faker\Generator $faker) {
+    static $password;
+
+    $names = ['ACS-111', 'ACS-222', 'ACS-333', 'ACS-444', 'ACS-555'];
+    $sections = ['A', 'B', 'C', 'D', 'E'];
+    $units = array_map(function($name, $section) {
+        return $name .  $section;
+    }, $names, $sections);
+    return [
+        'name' => $faker->randomElement($units),
+        'room' => 'ROOM101',
+        'date' => $faker->dateTime,
+        'shift' => $faker->randomElement(['athi', 'day', 'evening']),
+    ];
+});
