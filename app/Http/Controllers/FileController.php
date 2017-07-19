@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\File;
 use App\Type;
+use App\Unit;
 use App\Utilities\ExcelParser;
 use App\Utilities\FileUtilities;
 use Illuminate\Http\Request;
@@ -153,7 +154,7 @@ class FileController extends Controller
         }
 
         $resource = $request->file('file');
-
+        Unit::truncate();
         ExcelParser::copyToDatabase($resource->getRealPath());
         return response()->json('Saved successfully');
     }
