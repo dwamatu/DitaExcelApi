@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 
 use App\File;
-use App\Utilities\FileUtilities;
-use Schema;
 use App\Type;
 use App\Utilities\FunctionsUtilities;
+use DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-
-use Mockery\Exception;
+use Schema;
 
 
 class BaseController extends Controller
@@ -28,6 +26,15 @@ class BaseController extends Controller
         $offSet = $request->query('offSet');
         $all = $request->query('all');
         $q = $request->query('q');
+        $where = false;
+        $filters = array();
+        if (!isset($all)) {
+            $where = true;
+            $units = explode(',', $request->query('names'));
+            $shift = $request->query('shift');
+            $filters['shift'] = $shift;
+            $filters['name'] = $units;
+        }
 
 
         if (Schema::hasTable($table)) {
@@ -40,7 +47,7 @@ class BaseController extends Controller
                     $this->response['resource'] = $data;
                 }
             } else {
-                $this->response = FunctionsUtilities::fetchList($table, $pageSize, $offSet, $all, $q);
+                $this->response = FunctionsUtilities::fetchList($table, $pageSize, $offSet, $all, $q, $where, $filters);
 
             }
             return $this->response;
@@ -48,6 +55,7 @@ class BaseController extends Controller
         } else {
             $this->response['errors'] = ['status_code' => 404, "error" => "resource $table does not exist"];
         }
+
         return $this->response;
 
     }

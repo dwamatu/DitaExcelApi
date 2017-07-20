@@ -22,11 +22,6 @@
                 <p>
                     <a href="javascript:void(0)" @click="reset()">Upload again</a>
                 </p>
-                <ul class="list-unstyled">
-                    <li v-for="item in uploadedFiles">
-                        <a :href="item.url">{{ item.file_name }}</a>
-                    </li>
-                </ul>
             </div>
             <div v-if="isFailed">
                 <h2>Upload failed.</h2>
@@ -77,10 +72,11 @@
                 this.currentStatus = STATUS_SAVING;
 
                 upload(formData).then(x => {
-                    this.uploadedFiles = [].concat(x);
+                    //this.uploadedFiles = [].concat(x);
                     this.currentStatus = STATUS_SUCCESS;
                 }).catch(err => {
                     this.uploadError = err.response;
+                    //this.uploadError = 'An error occurred';
                     this.currentStatus = STATUS_FAILED;
                 });
             },

@@ -28,6 +28,7 @@ Route::group(['prefix' => 'api/v1'], function () {
 
     //File and File Types
     Route::post('types/{id?}', 'FileController@saveFileType');
-    Route::post('files/{id?}', 'FileController@saveFile');
+    Route::post('files', 'FileController@saveFile');
+    Route::post('files/db', 'FileController@saveFileToDB');
 
 });
