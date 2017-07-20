@@ -56,7 +56,7 @@ class FunctionsUtilities
         $responseCollection->put('iFilteredTotal', $iFilteredTotal);
         $responseCollection->put('results', $results);
 
-        \Log::info('response',[$responseCollection]);
+        //\Log::info('response',[$responseCollection]);
 
         return $responseCollection;
 

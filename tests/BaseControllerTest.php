@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class BaseControllerTest extends TestCase
 {
@@ -23,7 +22,7 @@ class BaseControllerTest extends TestCase
         //$this->visit("/api/v1/units?where=true&shift=Athi")->assertResponseStatus(200)->seeJsonStructure(['results']);
         //$this->visit("/api/v1/units?where=true&shift=Evening")->assertResponseStatus(200)->seeJsonStructure(['results']);
         //$this->visit("/api/v1/units?where=true&names=PHL-112,PHY-113,COM-113?shift=Day")->assertResponseStatus(200)->seeJsonStructure(['results']);
-        $this->visit("/api/v1/units?where=true&names=".$units[0]->name. "," . $units[1]->name . "&shift=athi")
+        $this->visit("/api/v1/units?names=" . $units[0]->name . "," . $units[1]->name . "&shift=athi")
             ->assertResponseStatus(200)
             ->seeJsonStructure(['results'])
             ->seeJsonContains([

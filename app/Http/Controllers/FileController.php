@@ -8,6 +8,7 @@ use App\Unit;
 use App\Utilities\ExcelParser;
 use App\Utilities\FileUtilities;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class FileController extends Controller
@@ -155,7 +156,9 @@ class FileController extends Controller
 
         $resource = $request->file('file');
         Unit::truncate();
+        Log::info('Saving to DB');
         ExcelParser::copyToDatabase($resource->getRealPath());
+        Log::info('Done');
         return response()->json('Saved successfully');
     }
 
