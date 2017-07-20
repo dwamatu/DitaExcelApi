@@ -75,8 +75,8 @@
                     //this.uploadedFiles = [].concat(x);
                     this.currentStatus = STATUS_SUCCESS;
                 }).catch(err => {
-                    this.uploadError = err.response;
-                    //this.uploadError = 'An error occurred';
+                    //this.uploadError = err.response;
+                    this.uploadError = 'Oops! An error occurred.';
                     this.currentStatus = STATUS_FAILED;
                 });
             },
