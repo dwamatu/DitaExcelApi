@@ -19,7 +19,10 @@ Route::get('/upload', function () {
     $url = getenv('BASE_URL');
     return view('upload', ['url' => URL::to('/')]);
 });
+Route::get('/examResource',function(){
 
+    return view('uploadResources');
+});
 Route::get('file/{type}', 'FileController@retrieveFile');
 Route::get('file/details/{id}', 'FileController@retrieveFileDetails');
 Route::group(['prefix' => 'api/v1'], function () {
@@ -32,3 +35,4 @@ Route::group(['prefix' => 'api/v1'], function () {
     Route::post('files/db', 'FileController@saveFileToDB');
 
 });
+

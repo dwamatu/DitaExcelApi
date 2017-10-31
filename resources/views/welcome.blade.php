@@ -83,7 +83,8 @@
                 </div>
 
                 <div class="links">
-                    <a href="/upload">Upload</a>
+                    <a href="/upload">Upload Timetable</a>
+                    <a href="/examResource">Exam Resources</a>
                 </div>
             </div>
         </div>
