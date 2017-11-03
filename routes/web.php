@@ -19,10 +19,14 @@ Route::get('/upload', function () {
     $url = getenv('BASE_URL');
     return view('upload', ['url' => URL::to('/')]);
 });
-Route::get('/examResource',function(){
+Route::get('/upload_pastpapers',function(){
 
     return view('uploadResources');
 });
+Route::get('/view_pastpapers',function (){
+    return view('viewpastpapers');
+});
+
 Route::get('file/{type}', 'FileController@retrieveFile');
 Route::get('file/details/{id}', 'FileController@retrieveFileDetails');
 Route::group(['prefix' => 'api/v1'], function () {
