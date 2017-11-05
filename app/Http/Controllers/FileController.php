@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\File;
-use App\Type;
 use App\Unit;
 use App\Utilities\ExcelParser;
 use App\Utilities\FileUtilities;
@@ -13,19 +12,44 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class FileController extends Controller
 {
-    //Retrieve File
-    public function retrieveFile($type)
-    {
+	public function retrieveFile( $fetch_type, $identifier ) {
+		switch ( $fetch_type ) {
+			case 'type':
+				return $this->retrieveFileByType( $identifier );
+				break;
+			case 'name':
+				return $this->retrieveFileByName( $identifier );
+				break;
+			default:
+				return $this->verifyData( null );
+		}
+	}
 
-        $fileDetails = Type::latest()->where('name', $type)->firstOrFail();
+    //Retrieve File
+	public function retrieveFileByType( $type )
+    {
         if (env('APP_ENV', 'local') == 'production') {
-            $data = FileUtilities::getFileCloud($fileDetails->id);
+	        $data = FileUtilities::getFileCloudByType( $type );
         } else {
-            $data = FileUtilities::getFile($fileDetails->id);
+	        $data = FileUtilities::getFileByType( $type );
         }
+
+	    $this->verifyData( $data );
 
         return $this->downloadFile($data);
     }
+
+	public function retrieveFileByName( $name ) {
+		if ( env( 'APP_ENV', 'local' ) == 'production' ) {
+			$data = FileUtilities::getFileCloudByName( $name );
+		} else {
+			$data = FileUtilities::getFileByName( $name );
+		}
+
+		$this->verifyData( $data );
+
+		return $this->downloadFile( $data );
+	}
 
     /**
      * @param $data
@@ -40,36 +64,22 @@ class FileController extends Controller
         return $data;
     }
 
-    public function retrieveFileDetails($type)
-    {
-        $fileDetails = Type::latest()->where('name', $type)->firstOrFail();
-        $data = FileUtilities::getDetails($fileDetails->id);
-        $data->load(['type' => function ($query) {
-            $query->select('name', 'file_id');
-        }]);
-        return $data->toJson();
-    }
+	public function retrieveFileDetails( $fetch_type, $identifier ) {
+		$response = null;
+		switch ( $fetch_type ) {
+			case 'type':
+				$data     = FileUtilities::getDetailsByType( $identifier );
+				$response = $data->toJson();
+				break;
+			case 'name':
+				$data     = FileUtilities::getDetailsByName( $identifier );
+				$response = $data->toJson();
+				break;
+			default:
+				$response = response()->json( 'File not found', 404 );
+		}
 
-    public function saveFileType(Request $request)
-    {
-        $newFileTypeData = $request->all();
-
-        $type = $this->createType($newFileTypeData);
-
-        return $type;
-    }
-
-    /**
-     * @param $newFileTypeData
-     * @return Type
-     */
-    private function createType($newFileTypeData)
-    {
-        $type = new Type();
-        $type->name = $newFileTypeData['name'];
-        $type->save();
-
-        return $type;
+		return $response;
     }
 
     public function saveFile(Request $request)
@@ -81,7 +91,7 @@ class FileController extends Controller
 
         $ext = $request->file('file')->getClientOriginalExtension();
 
-        if ($ext != 'xls' && $ext != 'xlsx') {
+	    if ( $ext != 'xls' && $ext != 'xlsx' && $ext != 'pdf' ) {
             return response()->json('Bad request (Invalid file)', 400);
         }
 
@@ -131,14 +141,12 @@ class FileController extends Controller
 
     private function storeFileMetadataWithChecksum($filename, $fileType, $checksum)
     {
-        $file = new File();
-        $file->file_name = $filename;
-        $file->checksum = $checksum;
+	    $file = new File( [
+		    'file_name' => $filename,
+		    'checksum'  => $checksum,
+		    'filetype'  => $fileType
+	    ] );
         $file->save();
-        $file->type()->create(['name' => $fileType]);
-        $file->load(['type' => function ($query) {
-            $query->select('name', 'file_id');
-        }]);
         return $file;
     }
 
@@ -162,20 +170,10 @@ class FileController extends Controller
         return response()->json('Saved successfully');
     }
 
-    /**
-     * @param $filename
-     * @param $paramType
-     * @return File
-     */
-    private function storeFileMetadata($filename, $paramType)
-    {
-        $file = new File();
-
-        $file->file_name = $filename;
-        $file->file_type = $paramType->id;
-
-        $file->save();
-        return $file;
+	private function verifyData( $data ) {
+		if ( $data == null ) {
+			abort( 404, 'File not found' );
+		}
     }
 
 }
