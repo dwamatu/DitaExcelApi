@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PastPaper extends Model
 {
-    protected $table ='Papers_Resource';
+	protected $table = 'past_papers';
 
-    protected $fillable =['name','resource_type','filepath'];
+	protected $fillable = [ 'name', 'resource_type', 'filepath', 'semester' ];
 }

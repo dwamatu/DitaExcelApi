@@ -19,13 +19,9 @@ Route::get('/upload', function () {
     $url = getenv('BASE_URL');
     return view('upload', ['url' => URL::to('/')]);
 });
-Route::get('/upload_pastpapers',function(){
 
-    return view('uploadResources');
-});
-Route::get('/view_pastpapers',function (){
-    return view('viewpastpapers');
-});
+Route::get( '/pastpapers/upload', 'PastPaperController@upload' );
+Route::get( '/pastpapers', 'PastPaperController@index' );
 
 Route::get('file/{type}', 'FileController@retrieveFile');
 Route::get('file/details/{id}', 'FileController@retrieveFileDetails');
@@ -39,4 +35,9 @@ Route::group(['prefix' => 'api/v1'], function () {
     Route::post('files/db', 'FileController@saveFileToDB');
 
 });
+
+Route::group( [ 'prefix' => 'api/v2' ], function () {
+	// Past papers
+	Route::get( 'papers', 'PastPaperController@getAll' );
+} );
 
