@@ -94,7 +94,7 @@ class FileUtilities
 		$result = null;
 
 		$listContents = Storage::disk( 'google' )->listContents();
-		$details      = FileUtilities::getFileCloudDetails( $listContents, $filename );
+		$details      = self::getFileCloudDetails( $listContents, $filename );
 		$data         = Storage::disk( 'google' )->get( $details['path'] );
 		$dir          = storage_path() . '/app/files/';
 		if ( ! file_exists( $dir ) ) {
@@ -107,7 +107,38 @@ class FileUtilities
 		return $path;
     }
 
-    static function getFileCloudDetails(Array $array, $filename)
+	public static function saveFile( $originalFilename, $resource, $checksum, $filetype ) {
+		//Append Unique Identifier File Name
+		$now = self::fileCreationDate();
+		//Remove Special Characters
+		$tmpFilename = str_replace( ' ', '_', $originalFilename );
+		//Concatenate filename and date
+		$filename = $now . '_' . $tmpFilename;
+
+		//Store File
+		if ( env( 'APP_ENV', 'local' ) == 'production' ) {
+			FileUtilities::storeFileCloud( $filename, \Illuminate\Support\Facades\File::get( $resource->getRealPath() ) );
+		} else {
+			FileUtilities::storeFile( $resource, $filename );
+		}
+
+		$file = self::storeFileMetadataWithChecksum( $filename, $filetype, $checksum );
+
+		return $file;
+	}
+
+	private static function storeFileMetadataWithChecksum( $filename, $fileType, $checksum ) {
+		$file = new File( [
+			'file_name' => $filename,
+			'checksum'  => $checksum,
+			'filetype'  => $fileType
+		] );
+		$file->save();
+
+		return $file;
+	}
+
+	private static function getFileCloudDetails( Array $array, $filename )
     {
 
         foreach ($array as $subarray) {
@@ -119,4 +150,12 @@ class FileUtilities
 
         return null;
     }
+
+	public static function fileCreationDate() {
+		$now = \Carbon\Carbon::now()->toDateTimeString();
+		$now = str_replace( ':', '_', $now );
+		$now = str_replace( '-', '_', $now );
+
+		return $now;
+	}
 }

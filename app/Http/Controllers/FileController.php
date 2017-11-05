@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\File;
 use App\Unit;
 use App\Utilities\ExcelParser;
 use App\Utilities\FileUtilities;
@@ -96,7 +95,7 @@ class FileController extends Controller
         }
 
         $resource = $request->file('file');
-        $checksum = hash_file('md5', $resource->getRealPath());;
+	    $checksum = hash_file( 'md5', $resource->getRealPath() );
 
         $fileType = $request->file('file')->getClientOriginalExtension();
         $originalFilename = $request->file('file')->getClientOriginalName();
@@ -108,46 +107,8 @@ class FileController extends Controller
             $originalFilename = $resource->getFilename();
             $checksum = hash_file('md5', $resource->getRealPath());
         }
-        //Append Unique Identifier File Name
-        $now = self::fileCreationDate();
-        //Remove Special Characters
-        $tmpFilename = str_replace(' ', '_', $originalFilename);
-        //Concatenate filename and date
-        $filename = $now . '_' . $tmpFilename;
-        //Store File
-        if (env('APP_ENV', 'local') == 'production') {
-            FileUtilities::storeFileCloud($filename, \Illuminate\Support\Facades\File::get($resource->getRealPath()));
-        } else {
-            FileUtilities::storeFile($resource, $filename);
-        }
 
-
-        //Check File Type Exists and Create if Does'nt Create a File Type.
-        //$paramType = Type::firstOrCreate(['name' => $fileType]);
-        //Store File Details
-        //$file = $this->storeFileMetadata($filename, $paramType);
-        $file = $this->storeFileMetadataWithChecksum($filename, $fileType, $checksum);
-
-        return $file;
-    }
-
-    private static function fileCreationDate()
-    {
-        $now = \Carbon\Carbon::now()->toDateTimeString();
-        $now = str_replace(':', '_', $now);
-        $now = str_replace('-', '_', $now);
-        return $now;
-    }
-
-    private function storeFileMetadataWithChecksum($filename, $fileType, $checksum)
-    {
-	    $file = new File( [
-		    'file_name' => $filename,
-		    'checksum'  => $checksum,
-		    'filetype'  => $fileType
-	    ] );
-        $file->save();
-        return $file;
+	    return FileUtilities::saveFile( $originalFilename, $resource, $checksum, $fileType );
     }
 
     public function saveFileToDB(Request $request)

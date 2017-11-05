@@ -58,6 +58,6 @@ $factory->define( App\PastPaper::class, function ( Faker\Generator $faker ) {
 		'name'          => $name,
 		'resource_type' => $faker->randomElement( array( 'cat', 'assignment', 'exam' ) ),
 		'semester'      => ucfirst( $faker->randomElement( $semesters ) ),
-		'filepath'      => $faker->word
+		'file'          => $faker->word
 	];
 } );

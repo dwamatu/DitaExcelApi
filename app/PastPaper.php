@@ -8,5 +8,5 @@ class PastPaper extends Model
 {
 	protected $table = 'past_papers';
 
-	protected $fillable = [ 'name', 'resource_type', 'filepath', 'semester' ];
+	protected $fillable = [ 'name', 'resource_type', 'file', 'semester' ];
 }

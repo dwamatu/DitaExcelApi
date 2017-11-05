@@ -38,5 +38,6 @@ Route::group(['prefix' => 'api/v1'], function () {
 Route::group( [ 'prefix' => 'api/v2' ], function () {
 	// Past papers
 	Route::get( 'papers', 'PastPaperController@getAll' );
+	Route::post( 'papers', 'PastPaperController@addPaper' );
 } );
 
