@@ -15,7 +15,7 @@ require('laravel-elixir-vue-2');
 
 elixir((mix) => {
     mix.sass('app.scss')
-        .webpack('app.js', 'resources/assets/js', 'public/js', {
+        .webpack('app.js', 'public/js', 'resources/assets/js', {
             module: {
                 postLoaders: [
                     {test: /icon/, loader: "callback-loader"}
