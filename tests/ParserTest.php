@@ -157,19 +157,19 @@ class ParserTest extends TestCase
         $path = storage_path('testing/excel-new1.xls');
         \App\Utilities\ExcelParser::copyToDatabase($path);
         $this
-            ->seeInDatabase('units', [
+	        ->assertDatabaseHas( 'units', [
                 'name' => 'ACS-354A',
             ])
-            ->seeInDatabase('units', [
+	        ->assertDatabaseHas( 'units', [
                 'name' => 'IRS-325T',
             ])
-            ->seeInDatabase('units', [
+	        ->assertDatabaseHas( 'units', [
                 'name' => 'ENG-111T',
             ])
-            ->seeInDatabase('units', [
+	        ->assertDatabaseHas( 'units', [
                 'name' => 'MUS-418A',
             ])
-            ->seeInDatabase('units', [
+	        ->assertDatabaseHas( 'units', [
                 'name' => 'DIS-660X',
             ]);
     }
@@ -209,7 +209,8 @@ class ParserTest extends TestCase
         $file = new UploadedFile(storage_path('testing/excel-new.xlsx'), 'excel-new.xlsx', null, filesize(storage_path('testing/excel-new.xlsx')), null, true);
         $this->json("POST", 'api/v1/files/db',
             ["file" => $file])
-            ->assertResponseStatus(200)->seeJsonContains(['Saved successfully']);
+             ->assertSuccessful()
+             ->assertJsonFragment( [ 'Saved successfully' ] );
     }
 
 }
