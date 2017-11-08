@@ -84,7 +84,7 @@
 
                 <div class="links">
                     <a href="/upload">Upload Timetable</a>
-                    <a href="/examResource">Exam Resources</a>
+                    <a href="/pastpapers/upload">Past papers</a>
                 </div>
             </div>
         </div>
