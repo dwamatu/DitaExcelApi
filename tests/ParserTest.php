@@ -178,28 +178,28 @@ class ParserTest extends TestCase
 		$path = storage_path( 'testing/excel-new2.xlsx' );
 		\App\Utilities\ExcelParser::copyToDatabase( $path );
 		$this
-			->seeInDatabase( 'units', [
+			->assertDatabaseHas( 'units', [
 				'name' => 'ACS-354A',
 			] )
-			->seeInDatabase( 'units', [
+			->assertDatabaseHas( 'units', [
 				'name' => 'ICO-018T',
 			] )
-			->seeInDatabase( 'units', [
+			->assertDatabaseHas( 'units', [
 				'name' => 'PSY-414T',
 			] )
-			->seeInDatabase( 'units', [
+			->assertDatabaseHas( 'units', [
 				'name' => 'COM-264B',
 			] )
-			->seeInDatabase( 'units', [
+			->assertDatabaseHas( 'units', [
 				'name' => 'MME-614X',
 			] )
-			->seeInDatabase( 'units', [
+			->assertDatabaseHas( 'units', [
 				'name' => 'PSY-211P',
 			] )
-			->seeInDatabase( 'units', [
+			->assertDatabaseHas( 'units', [
 				'name' => 'DEV-111X',
 			] )
-			->seeInDatabase( 'units', [
+			->assertDatabaseHas( 'units', [
 				'name' => 'HRM-611X',
 			] );
 	}
