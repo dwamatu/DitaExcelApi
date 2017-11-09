@@ -64,7 +64,7 @@
 </template>
 
 <script>
-
+    import {uploadPastPapers} from '../file-upload.service';
 </script>
 
 <style>

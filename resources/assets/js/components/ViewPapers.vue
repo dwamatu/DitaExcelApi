@@ -18,7 +18,10 @@
                 <thead>
                 <tr>
                     <th class="text-center" @click="ascending = !ascending">Name
-                        <icon name="glyphicon-triangle-top"></icon>
+                        <span class="header-icon">
+                            <icon name="sort"></icon>
+                        </span>
+
                     </th>
                     <th class="text-center">Type</th>
                     <th class="text-center">Semester</th>
@@ -51,13 +54,15 @@
 </template>
 
 <script>
+    let Icon = require('vue-awesome');
+
     import {getPapers} from '../get-papers.service';
 
     const STATUS_INITIAL = 0, STATUS_FETCHING = 1, STATUS_SUCCESS = 2, STATUS_FAILED = 3;
     let currentPage = 1;
     export default {
         components: {
-            "icon": require("vue-icons")
+            Icon
         },
         name: 'app',
         data() {
@@ -136,5 +141,10 @@
     table th,
     table td {
         padding: 10px;
+    }
+
+    .header-icon > * {
+        vertical-align: middle;
+        cursor: pointer;
     }
 </style>
