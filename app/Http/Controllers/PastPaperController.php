@@ -16,7 +16,11 @@ class PastPaperController extends Controller {
 		return view( 'upload_resources' );
 	}
 
-	public function getAll() {
+	public function getAll( Request $request ) {
+		$filter = $request->input( 'filter' );
+		if ( ! empty( $filter ) ) {
+			return PastPaper::where( 'name', 'LIKE', "%$filter%" )->paginate( 20 );
+		}
 		return PastPaper::paginate( 20 );
 	}
 
