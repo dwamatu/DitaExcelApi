@@ -8,14 +8,14 @@
                     <div class="form-group">
                         <label for="name" class="control-label">File Name</label>
                         <div class="input-group">
-                            <input type="text" v-model="docInfo.name" class="form-control" name="name" id="name"
+                            <input type="text" v-model="name" class="form-control" name="name" id="name"
                                    placeholder="Enter File Name"/>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="resource" class="control-label">Resource Type</label>
-                        <select class="form-control" v-model="docInfo.resource_type" id="resource">
+                        <select class="form-control" v-model="resource_type" id="resource">
                             <option selected>Choose Resource type</option>
                             <option>Exam</option>
                             <option>CAT</option>
@@ -27,7 +27,7 @@
                         <label for="semester" class="control-label">Semester</label>
                         <div>
                             <div class="input-group">
-                                <input type="text" class="form-control" v-model="docInfo.semester" name="username"
+                                <input type="text" class="form-control" v-model="semester" name="username"
                                        id="semester"
                                        placeholder="Enter Semester"/>
                             </div>
@@ -49,7 +49,7 @@
                     </div>
 
                     <div class="form-group ">
-                        <a href="#" v-on:click="postDoc" type="button" id="button"
+                        <a href="#" @click="uploadPaper" type="button" id="button"
                            class="btn btn-primary btn-lg btn-block">Upload</a>
                     </div>
 
@@ -67,12 +67,10 @@
         name: 'app',
         data() {
             return {
-                docInfo: {
-                    name: '',
-                    resource_type: '',
-                    semester: ''
-                },
-                doc: null
+                name: '',
+                resource_type: '',
+                semester: '',
+                file: null
             }
         },
         methods: {
@@ -80,18 +78,18 @@
                 let files = e.target.files || e.dataTransfer.files;
                 if (!files.length)
                     return;
-                this.createFile(files[0]);
+
+                this.file = files[0];
             },
-            postDoc: function () {
-                let data = this.docInfo;
+            uploadPaper: function () {
 
-                var formdata = new FormData(this);
-                formdata.append("name", data.name);
-                formdata.append("resource_type", data.resource_type);
-                formdata.append("semester", data.semester);
-                formdata.append("file", this.doc);
+                let formData = new FormData(this);
+                formData.append("name", this.name);
+                formData.append("resource_type", this.resource_type);
+                formData.append("semester", this.semester);
+                formData.append("file", this.file);
 
-                uploadPastPaper(formdata).then(x => {
+                uploadPastPaper(formData).then(x => {
                     console.log(x);
                 }).catch(err => {
                     console.log(err);
@@ -146,9 +144,9 @@
         max-width: 400px;
         padding: 10px 40px;
         text-shadow: none;
-        -webkit-box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.31);
-        -moz-box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.31);
-        box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.31);
+        -webkit-box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.31);
+        -moz-box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.31);
+        box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.31);
 
     }
 </style>
