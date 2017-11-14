@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row main">
             <div class="main-center">
-                <h1>Upload Document</h1>
+                <h1>Upload Past Paper</h1>
                 <form class="">
 
                     <div class="form-group">
@@ -14,9 +14,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="resource" class="control-label">Resource Type</label>
-                        <select class="form-control" v-model="resource_type" id="resource">
-                            <option selected>Choose Resource type</option>
+                        <label for="resource" class="control-label">Past Paper Type</label>
+                        <select class="form-control" v-model="resource_type" id="resource" autocomplete="off">
                             <option>Exam</option>
                             <option>CAT</option>
                             <option>Assignment</option>
@@ -37,7 +36,7 @@
                     <div class="form-group">
                         <div class="form-file">
                             <input type="file" id="file" @change="onFileChange" class="file-input"
-                                   accept="application/pdf">
+                                   accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                         </div>
                     </div>
 
@@ -94,14 +93,6 @@
                 }).catch(err => {
                     console.log(err);
                 });
-            },
-            createFile(file) {
-                let reader = new FileReader();
-                let vm = this;
-                reader.onload = (e) => {
-                    vm.doc = e.target.result;
-                };
-                reader.readAsDataURL(file);
             }
         }
     }
