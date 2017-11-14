@@ -7,7 +7,9 @@ function upload(formData) {
 
 function uploadPastPaper(formData) {
     const url = '/api/v2/papers';
-    return axios.post(url, formData);
+    const config = {headers: {'Accept': 'application/json'}};
+    console.log(formData.get('file'));
+    return axios.post(/*'http://httpbin.org/post'*/url, formData, config);
 }
 
 export {upload, uploadPastPaper}
