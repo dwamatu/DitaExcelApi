@@ -56,6 +56,6 @@ class PastPapersTest extends TestCase {
 			"resource_type" => $paper->resource_type,
 			"file"          => $file,
 		] )->assertStatus( 422 )
-		     ->assertJsonFragment( [ 'The max file size is 8196 kilobytes' ] );;
+		     ->assertJsonFragment( [ 'The max file size is 8196 kilobytes' ] );
 	}
 }

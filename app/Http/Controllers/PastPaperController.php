@@ -51,7 +51,9 @@ class PastPaperController extends Controller {
 
 		$ext = $request->file( 'file' )->getClientOriginalExtension();
 
-		if ( $ext != 'pdf' || $ext != 'doc' || $ext != 'docx' ) {
+		Log::info( $ext );
+
+		if ( ! ( $ext == 'pdf' || $ext == 'doc' || $ext == 'docx' ) ) {
 			return response()->json( 'Bad request (Invalid file)', 400 );
 		}
 
