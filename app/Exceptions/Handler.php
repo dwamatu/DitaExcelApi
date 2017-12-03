@@ -40,30 +40,11 @@ class Handler extends ExceptionHandler
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Exception  $exception
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception)
     {
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json(
-                $this->getJsonMessage($exception), $this->getExceptionHTTPStatusCode($exception)
-            );
-        }
         return parent::render($request, $exception);
-    }
-
-    protected function getJsonMessage($e)
-    {
-        return [
-            'status' => 'false',
-            'message' => $e->getMessage()
-        ];
-    }
-
-    protected function getExceptionHTTPStatusCode($e)
-    {
-        return method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
     }
 
     /**
