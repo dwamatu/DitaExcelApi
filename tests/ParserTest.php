@@ -152,7 +152,7 @@ class ParserTest extends TestCase
         //\App\Utilities\ExcelParser::copyToDatabase($path);
     }
 
-    public function testSaveToDBJune2017()
+	public function testSaveToDBAugust2017()
     {
         $path = storage_path('testing/excel-new1.xls');
         \App\Utilities\ExcelParser::copyToDatabase($path);
@@ -167,10 +167,10 @@ class ParserTest extends TestCase
                 'name' => 'ENG-111T',
             ])
 	        ->assertDatabaseHas( 'units', [
-                'name' => 'MUS-418A',
+		        'name' => 'MAT-425A',
             ])
 	        ->assertDatabaseHas( 'units', [
-                'name' => 'DIS-660X',
+		        'name' => 'DIS-665X',
             ]);
     }
 
