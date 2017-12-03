@@ -6,5 +6,3 @@
 Homestead.json
 Homestead.yaml
 .env
-/storage/exports/
-/nohup.out

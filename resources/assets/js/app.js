@@ -1,3 +1,4 @@
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * include Vue and Vue Resource. This gives a great starting point for
@@ -12,15 +13,8 @@ require('./bootstrap');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-import Upload from "./components/Upload.vue";
-import ViewPapers from "./components/ViewPapers.vue"
-import UploadPapers from "./components/UploadPapers.vue"
+Vue.component('example', require('./components/Example.vue'));
 
 const app = new Vue({
-    el: '#app',
-    components: {
-        Upload,
-        ViewPapers,
-        UploadPapers
-    }
+    el: '#app'
 });

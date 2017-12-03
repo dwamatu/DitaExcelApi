@@ -8,9 +8,4 @@ class File extends Model
 {
     //
     protected $table = 'files';
-	protected $fillable = [
-		'file_name',
-		'checksum',
-		'filetype'
-	];
 }
