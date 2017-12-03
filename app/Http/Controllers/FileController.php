@@ -2,33 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use App\File;
-use App\Type;
+use App\Unit;
+use App\Utilities\ExcelParser;
 use App\Utilities\FileUtilities;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class FileController extends Controller
 {
+	public function retrieveFile( $fetch_type, $identifier ) {
+		switch ( $fetch_type ) {
+			case 'type':
+				return $this->retrieveFileByType( $identifier );
+				break;
+			case 'name':
+				return $this->retrieveFileByName( $identifier );
+				break;
+			default:
+				return $this->verifyData( null );
+		}
+	}
+
     //Retrieve File
-    public function retrieveFile($type)
+	public function retrieveFileByType( $type )
     {
-
-        $fileDetails = Type::where('name', $type)->first();
-
-
-        if (count($fileDetails) < 1) {
-
-            $data = ["status_code" => 404, 'error' => "$type not found"];
+        if (env('APP_ENV', 'local') == 'production') {
+	        $data = FileUtilities::getFileCloudByType( $type );
         } else {
-            $data = FileUtilities::getFile($fileDetails->id);
+	        $data = FileUtilities::getFileByType( $type );
         }
 
-        $data = $this->downloadFile($data);
+	    $this->verifyData( $data );
 
-        return $data;
-
+        return $this->downloadFile($data);
     }
+
+	public function retrieveFileByName( $name ) {
+		if ( env( 'APP_ENV', 'local' ) == 'production' ) {
+			$data = FileUtilities::getFileCloudByName( $name );
+		} else {
+			$data = FileUtilities::getFileByName( $name );
+		}
+
+		$this->verifyData( $data );
+
+		return $this->downloadFile( $data );
+	}
 
     /**
      * @param $data
@@ -38,106 +58,83 @@ class FileController extends Controller
     {
         if ($data != null && !isset($data['status_code'])) {
 
-            $data = response()->download($data);
+            $data = response()->download($data)->deleteFileAfterSend(true);;
         }
         return $data;
     }
 
-    public function saveFileType(Request $request)
-    {
-        $newFileTypeData = $request->all();
+	public function retrieveFileDetails( $fetch_type, $identifier ) {
+		$response = null;
+		switch ( $fetch_type ) {
+			case 'type':
+				$data     = FileUtilities::getDetailsByType( $identifier );
+				$response = $data->toJson();
+				break;
+			case 'name':
+				$data     = FileUtilities::getDetailsByName( $identifier );
+				$response = $data->toJson();
+				break;
+			default:
+				$response = response()->json( 'File not found', 404 );
+		}
 
-        $type = $this->createType($newFileTypeData);
-
-        return $type;
-    }
-
-    /**
-     * @param $newFileTypeData
-     * @return Type
-     */
-    private function createType($newFileTypeData)
-    {
-        $type = new Type();
-
-        $type->name = $newFileTypeData['name'];
-
-        $type->save();
-
-        return $type;
+		return $response;
     }
 
     public function saveFile(Request $request)
     {
         //Validate requests
         $this->validate($request, [
-            'file' => 'required',
+            'file' => 'required|max:8000',
         ]);
 
+        $ext = $request->file('file')->getClientOriginalExtension();
+
+	    if ( $ext != 'xls' && $ext != 'xlsx' && $ext != 'pdf' ) {
+            return response()->json('Bad request (Invalid file)', 400);
+        }
+
         $resource = $request->file('file');
-        $checksum = null;
+	    $checksum = hash_file( 'md5', $resource->getRealPath() );
 
         $fileType = $request->file('file')->getClientOriginalExtension();
+        $originalFilename = $request->file('file')->getClientOriginalName();
         if ($fileType === 'xlsx') {
             $result = Excel::load($request->file('file')->getRealPath())->store('xls', false, true);
             $path = $result['full'];
             $fileType = $result['ext'];
             $resource = new \Symfony\Component\HttpFoundation\File\File($path);
-            $checksum = md5_file($resource->getRealPath());
+            $originalFilename = $resource->getFilename();
+            $checksum = hash_file('md5', $resource->getRealPath());
         }
-        $originalFilename = $request->file('file')->getClientOriginalName();
-        //Append Unique Identifier File Name
-        $now = self::fileCreationDate();
-        //Remove Special Characters
-        $tmpFilename = str_replace(' ', '_', $originalFilename);
-        //Concatenate filename and date
-        $filename = $now . '_' . $tmpFilename;
-        //Store File
-        FileUtilities::storeFile($resource, $filename);
 
-        //Check File Type Exists and Create if Does'nt Create a File Type.
-        $paramType = Type::firstOrCreate(['name' => $fileType]);
-        //Store File Details
-        //$file = $this->storeFileMetadata($filename, $paramType);
-        $file = $this->storeFileMetadataWithChecksum($filename, $paramType, $checksum);
-
-        return $file;
+	    return FileUtilities::saveFile( $originalFilename, $resource, $checksum, $fileType );
     }
 
-    private static function fileCreationDate()
+    public function saveFileToDB(Request $request)
     {
-        $now = \Carbon\Carbon::now()->toDateTimeString();
-        $now = str_replace(':', '_', $now);
-        $now = str_replace('-', '_', $now);
-        return $now;
+        $this->validate($request, [
+            'file' => 'required|max:8000',
+        ]);
+
+        $ext = $request->file('file')->getClientOriginalExtension();
+
+        if ($ext != 'xls' && $ext != 'xlsx') {
+            return response()->json('Bad request (Invalid file)', 400);
+        }
+
+        $resource = $request->file('file');
+        Unit::truncate();
+        Log::info('Saving to DB');
+        ExcelParser::copyToDatabase($resource->getRealPath());
+        Log::info('Done');
+        return response()->json('Saved successfully');
     }
 
-    private function storeFileMetadataWithChecksum($filename, $paramType, $checksum)
-    {
-        $file = new File();
-
-        $file->file_name = $filename;
-        $file->file_type = $paramType->id;
-        $file->checksum = $checksum;
-
-        $file->save();
-        return $file;
-    }
-
-    /**
-     * @param $filename
-     * @param $paramType
-     * @return File
-     */
-    private function storeFileMetadata($filename, $paramType)
-    {
-        $file = new File();
-
-        $file->file_name = $filename;
-        $file->file_type = $paramType->id;
-
-        $file->save();
-        return $file;
+	private function verifyData( $data ) {
+		if ( $data == null ) {
+			abort( 404, 'File not found' );
+		}
     }
 
 }

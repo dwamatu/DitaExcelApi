@@ -120,7 +120,7 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
+    'log' => env('APP_LOG', 'errorlog'),
 
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
 
@@ -168,6 +168,7 @@ return [
          */
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        App\Providers\GoogleDriveServiceProvider::class,
 
         /*
          * Application Service Providers...

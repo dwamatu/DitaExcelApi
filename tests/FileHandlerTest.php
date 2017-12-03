@@ -14,37 +14,37 @@ class FileHandlerTest extends TestCase
     use WithoutMiddleware;
     use DatabaseTransactions;
 
-    public function testExample()
+	public function testFileUploadDownload()
     {
         $faker = \Faker\Factory::create();
 
         $file = new UploadedFile(storage_path('testing/image.jpg'), 'image.jpg', null, filesize(storage_path('testing/image.jpg')), null, true);
 
-        $this->visit('api/v1/types')->assertResponseStatus(200);
-        $this->json("POST",'api/v1/types',['name'=>$faker->text(5)])->assertResponseStatus(200)->seeJsonStructure(['id']);
+	    $this->json( 'GET', 'api/v1/types?all=true' )->assertSuccessful();
 
-        $this->visit('api/v1/files')->assertResponseStatus(200)->seeJsonStructure(['results']);
+	    $this->json( 'GET', 'api/v1/files?all=true' )
+	         ->assertSuccessful()
+	         ->assertJsonStructure( [ 'results' ] );
 
 
         $this->json("POST",'api/v1/files',
             ["file" => $file ])
-            ->assertResponseStatus(200)
-            ->seeJsonStructure(['id']);
+             ->assertStatus( 400 );
 
-        $this->call('GET', 'file/jpg');
-        $this->assertTrue($this->response->headers->get('content-type') == 'image/jpeg');
-
-    }
-
-    public function testExcelConversion()
-    {
-        $file = new UploadedFile(storage_path('testing/excel-new.xlsx'), 'excel-new.xlsx', null, filesize(storage_path('testing/excel-new.xlsx')), null, true);
-        $this->json("POST", 'api/v1/files',
-            ["file" => $file])
-            ->assertResponseStatus(200)
-            ->seeJsonStructure(['id'])
-            ->seeJsonStructure(['checksum']);
-        $this->call('GET', 'file/xls');
-        $this->assertTrue($this->response->headers->get('content-type') == 'application/vnd.ms-office');
+	    $file     = new UploadedFile( storage_path( 'testing/file.pdf' ), 'file.pdf', null, filesize( storage_path( 'testing/file.pdf' ) ), null, true );
+	    $response = $this->json( "POST", 'api/v1/files',
+		    [ "file" => $file ] )
+	                     ->assertSuccessful();
+	    $data     = $response->decodeResponseJson();
+	    $this->json( 'GET', 'file/type/details/' . $data['filetype'] )
+	         ->assertJsonStructure( [ 'checksum' ] )
+	         ->assertJson( [ 'filetype' => 'pdf' ] );
+	    $response = $this->json( 'GET', 'file/type/' . $data['filetype'] )
+	                     ->assertHeader( 'content-type', 'application/pdf' );
+	    $this->json( 'GET', 'file/name/details/' . $data['file_name'] )
+	         ->assertJsonStructure( [ 'checksum' ] )
+	         ->assertJson( [ 'filetype' => 'pdf' ] );
+	    $this->call( 'GET', 'file/name/' . $data['file_name'] )
+	         ->assertHeader( 'content-type', 'application/pdf' );
     }
 }

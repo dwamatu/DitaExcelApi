@@ -1,4 +1,5 @@
 ## DitaExcelApi
+[![Build Status](https://travis-ci.org/dita-dev-team/DitaExcelApi.svg?branch=master)](https://travis-ci.org/dita-dev-team/DitaExcelApi)
 
 DitaExcelApi is an api built upon the Laravel framework which stores and parses excel documents.
 
